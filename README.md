@@ -1,1 +1,136 @@
-# Key-Manager
+# Key Manager
+
+Key Manager
+
+## Installation
+
+To compile, just run make in the git root directory:
+
+```bash
+make
+```
+
+## Usage
+
+There should be 3 executables built: a, b, and key_manager. Open 3 separate terminals and run the 3 following commands (in the separate terminals), in this order:
+
+```c++
+./key_manager
+
+./b
+
+./a <CBC|CFB> <input_file>
+```
+
+The following output should be expected:
+```
+Terminal 1:
+./key_manager
+[KM] Creating the socket...
+[KM] Socket created!
+[KM] Binding socket to address...
+[KM] Socket binded to address!
+[KM] Start listening!
+[KM] Listening on port 8080...
+[KM] Waiting for client B to connect...
+[KM] Waiting for client B to connect...
+[KM] Client B connected!
+[KM] Waiting for client A to connect...
+[KM] Client A connected!
+[KM] Waiting to receive the encryption mode from A...
+[KM] Received encryption mode CBC from A!
+[KM] Encrypting the chosen key!
+[KM] Sending key to A...
+[KM] Sending chosen encryption mode to B...
+[KM] Encrypting the iv!
+[KM] Sending IV to A...
+[KM] Sending key to B...
+[KM] Waiting for encrypted confirmation message from A...
+[KM] Sending IV to B...
+[KM] Waiting for encrypted confirmation message from B...
+[KM] Message from A received! Decrypting and checking it...
+[KM] Confirmation message from A is ok!
+[KM] Telling A that the confirmation message was received and is ok!
+[KM] Waiting for B to become available for sending messages...
+[KM] Message from B received! Decrypting and checking it...
+[KM] Confirmation message from B is ok!
+[KM] Telling B that the confirmation message was received and is ok!
+[KM] Waiting for notification from B that it has started listening...
+[KM] Waiting to receive number of encrypted blocks from B!
+[KM] B is listening! Telling A it can start communicating with B!
+[KM] Waiting for number of decrypted blocks from A...
+[KM] Received number of blocks from A: 6
+[KM] Received number of blocks from B: 6
+[KM] The number of bytes is equal!
+[KM] Done![KM] Creating the socket...
+[KM] Socket created!
+[KM] Binding socket to address...
+[KM] Socket binded to address!
+[KM] Start listening!
+[KM] Listening on port 8080...
+```
+```
+Terminal 2:
+./b
+[B] Begin!
+[B] Creating socket for key manager...
+[B] Connecting to the key manager...
+[B] Connected to the key manager!
+[B] Waiting to receive the encryption mode from the key manager...
+[B] Received the encryption mode!
+[B] Will be using encryption mode: CBC
+[B] Received the encryption key from the key manager!
+[B] Received the initialization vector from the key manager!
+[B] Encrypting the confirmation message...
+[B] Sending the encrypted confirmation message to the key manager...
+[B] Waiting for confirmation from the key manager!
+[B] Received confirmation from the key manager!
+[B] Start opening socket and listening to A to sen encrypted message!
+[B] Creating socket for listening!...
+[B] Socket for listening created!
+[B] Binding socket to address...
+[B] Socket binded to address!
+[B] Start listening!
+[B] Listening on port 8081...
+[B] Telling the key manager to tell A that it can start sending encrypted content!
+[B] Waiting for client A to connect...
+[B] Client A connected!!
+[B] Received the encrypted file content!
+[B] Decrypted the file content!
+[B] Got the following file content:
+this is a input file to check if the key manager homework truly works with padding too.
+[B] Sending the number of blocks to the key manager...
+[B] Done!
+```
+
+```
+Terminal 3:
+./a CBC ./test_file.txt
+[A] Begin!
+[A] Chosen required mode is CBC
+[A] Creating socket for key manager...
+[A] Socket created!
+[A] Connecting to the key manager...
+[A] Connected to the key manager!
+[A] Sending the required mode to the key manager...
+[A] Received the encryption key from the key manager!
+[A]Received the initialization vector from the key manager!
+[A] Encrypting the confirmation message...
+[A] Sending the encrypted confirmation message to the key manager...
+[A] Waiting for confirmation from the key manager!
+[A] Received confirmation from the key manager!
+[A] Waiting for notification from the key manager that B has started listening for messages!
+[A] Client B has started listening! Connecting to B...
+[A] Creating socket for B...
+[A] Socket for B created
+[A] Connected to client B!
+[A] Encrypting the file content and sending it to B...
+[A] Sending the number of encrypted blocks to the key manager...
+[A] Done!
+```
+
+## Implementation details
+
+This program was written in C/C++. The Makefile was generated with CMake. It builds 3 executables.
+The key manager accepts connections from both A and B, handling each of them on separate threads. The key manager has access to all keys: K1, K2, K2 and the IV, while A and B have access only to K3. The keys can be found at keys_all.h and keys_manager.h. For direct communication between A and B, B also starts listening on a separate port for incoming messages from A. The order of events is synchronized using conditional variables and the blocking nature of the read function for BSD sockets. For implementing the encryption (found at message_crypt.cpp), the OpenSSL EVP API was used. Since only the AES basic encryption was allowed, we only used EVP in ECB 128 bit mode, encrypting only fixed blocks of 16 bytes. For padding, I chose PKCS method. The code is commented and can be easily looked at by correlating the output messages with the code. The max buffer size for the input file for executable A is 1024 bytes. Thank you!
+
