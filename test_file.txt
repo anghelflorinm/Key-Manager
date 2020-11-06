@@ -1,0 +1,1 @@
+this is a input file to check if the key manager homework truly works with padding too.
