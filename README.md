@@ -4,10 +4,10 @@ Key Manager
 
 ## Installation
 
-To compile, just run make in the git root directory:
+To compile, just run the following script in the git root directory:
 
 ```bash
-make
+./build.sh
 ```
 
 ## Usage
