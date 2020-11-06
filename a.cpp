@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
     printf("[A] Received confirmation from the key manager!\n");
 
     //Wait for the key manager to send you confirmation that server B is open
+    usleep(100);
     printf("[A] Waiting for notification from the key manager that B has started listening for messages!\n");
     read(fd_key_manager, buffer, BUFFER_MAX_SIZE);
     printf("[A] Client B has started listening! Connecting to B...\n");

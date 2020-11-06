@@ -55,12 +55,14 @@ int main() {
     read(fd_client, buffer, BUFFER_MAX_SIZE);
     printf("[B] Received the encryption mode!\n");
     printf("[B] Will be using encryption mode: %s\n", buffer);
-    if(strcmp((const char*)buffer, "CFB") == 0){
+    if(strncmp((const char*)buffer, "CFB", 3) == 0){
         required_mode = CFB;
     }
 
     //Receive the encripition key, XORed by K3
+    printf("aici\n");
     unsigned char key[KEY_LEN] = {0};
+    //usleep(1);
     read(fd_client, buffer, BLOCK_SIZE);
     printf("[B] Received the encryption key from the key manager!\n");
     get_key_using_k3(buffer, key);

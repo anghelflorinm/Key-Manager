@@ -113,12 +113,14 @@ void handle_b(server_context& srv_context){
     }
     printf("[KM] Sending chosen encryption mode to B...\n");
     send(srv_context.fd_b, buffer, strlen((const char*)buffer), 0);
+    usleep(100);
     //Encrypt and send the corresponding key
     encrypt_key_with_k3(buffer, srv_context.required_mode, false);
     printf("[KM] Sending key to B...\n");
     send(srv_context.fd_b, buffer, KEY_LEN, 0);
 
     //Send the iv
+    usleep(100); 
     encrypt_key_with_k3(buffer, srv_context.required_mode, true);
     printf("[KM] Sending IV to B...\n");
     send(srv_context.fd_b, buffer, KEY_LEN, 0);
